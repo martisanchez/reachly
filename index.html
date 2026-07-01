@@ -1144,7 +1144,7 @@ async function runScrape(){
     const r = await fetch(SERVER+'/scrape',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({query, location, limit})
+      body: JSON.stringify({query, location, limit, existingNames: PROSPECTS.map(p=>p.name)})
     });
     if(!r.ok) throw new Error('Error del servidor: '+r.status);
     const data = await r.json();
