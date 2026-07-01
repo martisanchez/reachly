@@ -778,6 +778,7 @@ function render(){
             ${Object.entries(ST).map(([k,v])=>`<option value="${k}"${s===k?' selected':''}>${v.l}</option>`).join('')}
           </select>
           <button class="save-btn" onclick="saveNote(${p.id})">Guardar nota ↩</button>
+          <button onclick="deleteProspect(${p.id},'${p.name.replace(/'/g,"\\'")}')" style="width:100%;margin-top:6px;padding:8px;border-radius:7px;border:1px solid var(--red);background:transparent;color:var(--red);font-size:12px;font-family:var(--font);cursor:pointer">🗑 Eliminar prospecto</button>
         </div>
 
       </div></td>`;
@@ -1010,6 +1011,16 @@ function fixStickyHeader(){
   if(!header||!tabNav||!prog||!controls) return;
   const top = header.offsetHeight + tabNav.offsetHeight + prog.offsetHeight + controls.offsetHeight;
   document.querySelectorAll('thead th').forEach(th => th.style.top = top + 'px');
+}
+
+
+function deleteProspect(id, name){
+  if(!confirm(`¿Eliminar "${name}"? Esta acción no se puede deshacer.`)) return;
+  const idx = PROSPECTS.findIndex(p=>p.id===id);
+  if(idx>-1) PROSPECTS.splice(idx,1);
+  delete statuses[id]; delete notes[id]; delete msgs[id]; delete enriched[id];
+  saveLocal();
+  render();
 }
 
 
