@@ -401,6 +401,10 @@ td{padding:9px 10px;vertical-align:middle;font-size:12px}
       <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px"><path d="M6 1v7M3 5l3 3 3-3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke-linecap="round"/></svg>
       Importar CSV
     </button>
+    <button class="imp-btn" onclick="exportCSV()">
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px"><path d="M6 11V4M3 7l3-3 3 3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke-linecap="round"/></svg>
+      Exportar CSV
+    </button>
     <span style="font-size:11px;color:var(--text3);margin-left:8px">o buscá nuevos prospectos con Google Maps ↓</span>
   </div>
   <div class="sc-form">
@@ -1118,10 +1122,34 @@ function deleteProspect(id, name){
 }
 
 
+function exportCSV(){
+  const ST_LABELS = {p:'Sin contactar',c:'Contactado',r:'Respondio',q:'Calificado',nq:'No calificado',cl:'Cerrado'};
+  const headers = ['name','nicho','phone','email','website','address','google_maps_url','instagram_url','rating','review_count','mensaje_inicial','whatsapp_link','contactado','respondio','notas'];
+  const rows = PROSPECTS.map(p => {
+    const s = gs(p.id);
+    return [
+      p.name, p.nicho, p.phone, p.email||ge(p.id).email||'',
+      p.website, p.addr, p.maps, p.ig||ge(p.id).ig||'',
+      p.rating, p.reviews, msgs[p.id]||p.existing_msg||'',
+      p.wa, s==='c'||s==='r'||s==='q'||s==='cl'?'TRUE':'FALSE',
+      s==='r'||s==='q'||s==='cl'?'TRUE':'FALSE',
+      notes[p.id]||p.notes||''
+    ].map(v => {
+      const str = String(v??'').replace(/"/g,'""');
+      return str.includes(',') || str.includes('"') || str.includes('\n') ? `"${str}"` : str;
+    });
+  });
+  const csv = [headers.join(','), ...rows.map(r=>r.join(','))].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'prospectos_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+
 function setTab(name, el){
   ['prospectos','scraper','dashboard'].forEach(t=>{
-    document.getElementById('tab-'+t).style.display = t===name?'block':'none';
-    document.getElementById('tnav-'+t).classList.toggle('active', t===name);
   });
   if(name==='dashboard') renderDashboard();
 }
