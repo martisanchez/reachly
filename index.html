@@ -1150,6 +1150,8 @@ function exportCSV(){
 
 function setTab(name, el){
   ['prospectos','scraper','dashboard'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display = t===name?'block':'none';
+    document.getElementById('tnav-'+t).classList.toggle('active', t===name);
   });
   if(name==='dashboard') renderDashboard();
 }
